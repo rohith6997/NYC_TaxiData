@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Custom Configuration",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--bucket-name", "aws-bigdata-blog",
+                "--object-prefix", "artifacts/flink-refarch/data/"
+            ]
+        }
+    ]
+}
