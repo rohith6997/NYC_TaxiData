@@ -27,6 +27,7 @@ def process_events(decompressed_data):
 
 def decompress_and_process_from_s3(bucket_name, object_prefix):
     s3 = boto3.client('s3')
+    kinesis = boto3.client('kinesis')
     response = s3.list_objects_v2(Bucket=bucket_name, Prefix=object_prefix)
 
     overall_earliest_pickup_datetime = None
@@ -45,6 +46,9 @@ def decompress_and_process_from_s3(bucket_name, object_prefix):
 
                 # Process pickup datetime information
                 earliest_pickup, latest_pickup = process_events(decompressed_data)
+
+                kinesis.put_record(StreamName='taxi-data-stream', Data=decompressed_data, PartitionKey='1')
+
 
                 # Update overall earliest and latest pickup datetimes
                 if overall_earliest_pickup_datetime is None or earliest_pickup < overall_earliest_pickup_datetime:
@@ -66,6 +70,7 @@ def main():
     parser = argparse.ArgumentParser(description='Decompress and process Bz2 files from S3 in-memory')
     parser.add_argument('--bucket-name', required=True, help='Name of the S3 bucket')
     parser.add_argument('--object-prefix', required=True, help='Prefix for S3 object keys')
+    parser.add_argument('--kinesis-stream-name', required=True, help='Name of the Kinesis Data Stream')
 
     args = parser.parse_args()
 
